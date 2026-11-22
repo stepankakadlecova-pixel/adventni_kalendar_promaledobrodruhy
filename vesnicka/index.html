@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Adventní vesnička</title>
+<link rel="preload" as="image" href="sk_r0.webp" fetchpriority="high">
+<link rel="preload" as="image" href="vesnicka_male.webp" fetchpriority="high">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
@@ -118,7 +120,25 @@
   .karta .los{margin:16px 0 0;padding-top:12px;border-top:2px dashed #d6d2ca;font-size:14px;font-weight:700;color:var(--brown)}
   .karta .zavrit{position:absolute;top:12px;right:12px;width:44px;height:44px;border:3px solid var(--ink);border-radius:999px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
   .karta .reg{display:block;margin-top:10px;font-weight:800;color:#000;text-decoration-color:var(--orange);text-decoration-thickness:3px;text-underline-offset:4px}
+
+  /* loading screen */
+  .uvod{position:fixed;inset:0;z-index:50;background:#F7F5F1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .6s ease, visibility .6s;overflow:hidden}
+  .uvod.pryc{opacity:0;visibility:hidden}
+  .uvod .postava{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
+  .uvod .rec{position:relative;background:#fff;border:3px solid #000;border-radius:18px;box-shadow:4px 4px 0 #000;padding:12px 18px;font:700 clamp(20px,5vw,28px)/1.2 Kalam,cursive;text-align:center;max-width:min(86vw,420px);margin-bottom:18px;animation:recIn .5s cubic-bezier(.2,1.5,.4,1) both .2s}
+  .uvod .rec::after{content:"";position:absolute;left:50%;bottom:-12px;width:18px;height:18px;background:#fff;border-right:3px solid #000;border-bottom:3px solid #000;transform:translateX(-50%) rotate(45deg)}
+  @keyframes recIn{from{opacity:0;transform:scale(.6) translateY(10px)}to{opacity:1;transform:none}}
+  .uvod .sk{width:150px;height:auto;animation:houpe 1.4s ease-in-out infinite}
+  @keyframes houpe{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+  .uvod .nacitani{position:relative;z-index:1;display:flex;align-items:center;gap:10px;font:800 15px Nunito,sans-serif;color:#3B2F2A}
+  .uvod .vlocky{display:flex;gap:8px}
+  .uvod .vlocky svg{width:22px;height:22px;opacity:.25;animation:vl 1.5s ease-in-out infinite}
+  .uvod .vlocky svg:nth-child(2){animation-delay:.25s}.uvod .vlocky svg:nth-child(3){animation-delay:.5s}
+  @keyframes vl{0%,100%{opacity:.25;transform:translateY(-4px) rotate(0)}50%{opacity:1;transform:translateY(4px) rotate(60deg)}}
+  .uvod .pada{position:absolute;z-index:0;top:-30px;width:20px;height:20px;animation:padani linear infinite;opacity:.8}
+  @keyframes padani{to{transform:translateY(110vh) rotate(360deg)}}
   @media (prefers-reduced-motion: reduce){
+    .uvod .sk,.uvod .vlocky svg,.uvod .pada{animation:none}
     .snow{display:none}
     .okno .okenice,.okno .hvezda,.toast{transition:none}
     .okno.open .hvezda,.skritek.idle .telo,.skritek.idle .bublina{animation:none}
@@ -131,10 +151,17 @@
 </style>
 </head>
 <body>
+<div class="uvod" id="uvod" role="status" aria-live="polite">
+  <div class="postava">
+    <div class="rec">Taky se tak těšíte na Vánoce jako já?</div>
+    <img class="sk" src="sk_r0.webp" alt="Skřítek dobrodruh">
+  </div>
+  <div class="nacitani"><span class="vlocky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M9 4l3 3 3-3M9 20l3-3 3 3" fill="none" stroke="#7FB8D6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M9 4l3 3 3-3M9 20l3-3 3 3" fill="none" stroke="#7FB8D6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M9 4l3 3 3-3M9 20l3-3 3 3" fill="none" stroke="#7FB8D6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Chystám vesničku…</div>
+</div>
 <div class="scroller" id="scroller">
   <div class="sizer" id="sizer">
     <div class="stage" id="stage">
-      <img class="bg" src="vesnicka.webp" alt="Zasněžená vesnička s 24 domečky, cestičkami, mlýnem, hvězdárnou a velkým vánočním stromem.">
+      <img class="bg" id="bg" src="vesnicka_male.webp" fetchpriority="high" decoding="async" alt="Zasněžená vesnička s 24 domečky, cestičkami, mlýnem, hvězdárnou a velkým vánočním stromem.">
       <svg viewBox="0 0 2172 724" aria-hidden="true">
         <path id="cesta" fill="none" stroke="none"/>
         <g id="stopy"></g>
@@ -275,7 +302,7 @@
     b.setAttribute('aria-label', 'Okýnko ' + h.day + ', ' + h.name);
     // the open-window illustration: its glowing opening (182.5,199 / 260x236 in a 627px image) sits exactly over the painted window
     const k = w / 260;
-    const openImg = '<img class="otevrene" src="okno_otevrene.webp" alt="" style="left:' + (-182.5 * k).toFixed(1) + 'px;top:' + (-199 * k).toFixed(1) + 'px;width:' + (627 * k).toFixed(1) + 'px;transform-origin:' + (312.5 * k).toFixed(1) + 'px ' + (317 * k).toFixed(1) + 'px">';
+    const openImg = '<img class="otevrene" decoding="async" data-src="okno_otevrene.webp" alt="" style="left:' + (-182.5 * k).toFixed(1) + 'px;top:' + (-199 * k).toFixed(1) + 'px;width:' + (627 * k).toFixed(1) + 'px;transform-origin:' + (312.5 * k).toFixed(1) + 'px ' + (317 * k).toFixed(1) + 'px">';
     // scene images (400px): their opening (107,122 / 176 wide, sill at y 320) sits over the painted window
     let sceneImg = '';
     const sc = SCENES[h.day];
@@ -286,7 +313,7 @@
       else if (sc[0] === 'vlastni') { iw = sc[1]; ox = sc[3]; ow = sc[4]; sill = sc[2] - sc[5]; }
       else { const [, IW, IH] = sc; iw = IW; ox = 0.20 * IW; ow = 0.574 * IW; sill = IH - 0.18 * IW; }
       const q = (w + 4) / ow;
-      sceneImg = '<img class="scena" src="scena_' + String(h.day).padStart(2, '0') + '.webp" alt="" style="left:' + (-2 - ox * q).toFixed(1) + 'px;top:' + (hh + 2 - sill * q).toFixed(1) + 'px;width:' + (iw * q).toFixed(1) + 'px;transform-origin:' + ((ox + ow / 2) * q).toFixed(1) + 'px ' + (sill * q).toFixed(1) + 'px">';
+      sceneImg = '<img class="scena" alt="" decoding="async" data-src="scena_' + String(h.day).padStart(2, '0') + '.webp" alt="" style="left:' + (-2 - ox * q).toFixed(1) + 'px;top:' + (hh + 2 - sill * q).toFixed(1) + 'px;width:' + (iw * q).toFixed(1) + 'px;transform-origin:' + ((ox + ow / 2) * q).toFixed(1) + 'px ' + (sill * q).toFixed(1) + 'px">';
     }
     b.innerHTML = '<span class="ram"><span class="svetlo"></span><span class="okenice l"></span><span class="okenice r"></span></span>' + openImg + sceneImg + starSvg + '<span class="cislo">' + h.day + '</span>';
     b.addEventListener('click', (e) => { if (!opened.has(h.day)) return; e.stopPropagation(); if (dragMoved) return; showReward(h); });
@@ -391,7 +418,7 @@
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeReward(); }, true);
 
   // ---------------- background music (original composition, loops; starts after the first click/tap/key) ----------------
-  const hudba = new Audio('hudba.mp3'); hudba.loop = true; hudba.volume = 0.35; hudba.preload = 'auto';
+  const hudba = new Audio('hudba.mp3'); hudba.loop = true; hudba.volume = 0.35; hudba.preload = 'none';
   const zvukBtn = $('zvuk');
   let chceHudbu = true;
   try { chceHudbu = localStorage.getItem('pmd-hudba') !== 'off'; } catch (e) {}
@@ -405,6 +432,38 @@
   const prvniDotek = () => { if (chceHudbu && hudba.paused) pustHudbu(); };
   ['pointerdown', 'keydown'].forEach(ev => window.addEventListener(ev, prvniDotek, { once: true, capture: true }));
   document.addEventListener('visibilitychange', () => { if (document.hidden) hudba.pause(); else if (chceHudbu && zvukBtn.getAttribute('aria-pressed') === 'true') pustHudbu(); });
+
+
+  // ---------------- loading screen: falling flakes, then the village appears ----------------
+  (() => {
+    const uvod = $('uvod'), start = performance.now();
+    if (!reduceMotion) for (let i = 0; i < 18; i++) {
+      const d = document.createElement('div'); d.className = 'pada';
+      d.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7" fill="none" stroke="#A8D5E8" stroke-width="2.4" stroke-linecap="round"/></svg>';
+      d.style.left = (Math.random() * 100) + 'vw'; d.style.animationDuration = (3 + Math.random() * 4) + 's'; d.style.animationDelay = (-Math.random() * 6) + 's';
+      d.style.transform = 'scale(' + (0.6 + Math.random()) + ')'; uvod.appendChild(d);
+    }
+    const bg = document.getElementById('bg');
+    const hotovo = () => {
+      const wait = Math.max(0, 1800 - (performance.now() - start));   // let the skritek say hello
+      setTimeout(() => { uvod.classList.add('pryc'); setTimeout(() => uvod.remove(), 700); }, wait);
+    };
+    if (bg.complete && bg.naturalWidth) hotovo(); else { bg.addEventListener('load', hotovo, { once: true }); bg.addEventListener('error', hotovo, { once: true }); }
+    setTimeout(hotovo, 8000);  // safety net
+  })();
+
+  // ---------------- fast loading: images load only when needed ----------------
+  function nacti(el) { el.querySelectorAll('img[data-src]').forEach(i => { i.src = i.dataset.src; i.removeAttribute('data-src'); }); }
+  const watch = new MutationObserver(ms => ms.forEach(m => { const el = m.target; if (el.classList.contains('open') || el.classList.contains('past') || el.classList.contains('next')) nacti(el); }));
+  houses.forEach(h => watch.observe(h.el, { attributes: true, attributeFilter: ['class'] }));
+  // sharper village for big / retina screens, swapped in after the page is usable
+  window.addEventListener('load', () => {
+    const need = (window.innerHeight || 800) * (window.devicePixelRatio || 1) > 900;
+    if (!need) return;
+    const hi = new Image(); hi.decoding = 'async'; hi.src = 'vesnicka.webp';
+    hi.onload = () => { document.getElementById('bg').src = hi.src; };
+  });
+  // warm up the next few scenes in the background
 
   // ---------------- state ----------------
   let opened = new Set(), at = 0; // at = house index the skritek stands at (0 = gate)
