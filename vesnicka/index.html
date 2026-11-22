@@ -30,6 +30,8 @@
   .right{display:flex;gap:8px;pointer-events:auto;flex-wrap:wrap;justify-content:flex-end}
   .chip{background:#fff;border:3px solid var(--ink);border-radius:999px;padding:7px 14px;font-weight:800;font-size:14px;box-shadow:3px 3px 0 var(--ink);white-space:nowrap}
   .btn{min-height:40px;background:#fff;border:3px solid var(--ink);border-radius:999px;padding:0 14px;font:800 14px Nunito,sans-serif;box-shadow:3px 3px 0 var(--ink);cursor:pointer}
+  .zvuk{width:44px;padding:0;display:flex;align-items:center;justify-content:center}
+  .zvuk .vlny{display:none}.zvuk[aria-pressed="true"] .vlny{display:inline}.zvuk[aria-pressed="true"] .krizek{display:none}
   .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
   .navhint{position:fixed;left:50%;bottom:max(12px, env(safe-area-inset-bottom));transform:translateX(-50%);z-index:10;background:#fff;border:3px solid var(--ink);border-radius:999px;padding:7px 15px;font-weight:800;font-size:14px;box-shadow:3px 3px 0 var(--ink);display:flex;align-items:center;gap:10px;transition:opacity .5s;pointer-events:none;white-space:nowrap}
   .navhint.hide{opacity:0}
@@ -152,6 +154,7 @@
   <a class="logo" href="https://www.promaledobrodruhy.cz" aria-label="Pro malé dobrodruhy – e-shop"><img src="logo.jpg" alt="Pro malé dobrodruhy"></a>
   <div class="right">
     <span class="chip" id="pocet">0 / 24</span>
+    <button class="btn zvuk" id="zvuk" type="button" aria-pressed="false" aria-label="Hudba: vypnutá"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9 H8 L13 5 V19 L8 15 H4 Z" fill="#000"/><path class="vlny" d="M16 9 q2.5 3 0 6 M18.5 6.5 q5 5.5 0 11" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round"/><path class="krizek" d="M16 9 L21 15 M21 9 L16 15" stroke="#000" stroke-width="2.4" stroke-linecap="round"/></svg></button>
     <button class="btn" id="reset" type="button">Znovu</button>
   </div>
 </div>
@@ -184,7 +187,7 @@
   const STAND = 64;             // skritek stops this far beside the window
   const STORE = 'pmd-vesnicka-v3';
   // window scenes we have so far (scena_NN.webp): template + image size
-  const SCENES = {"1": ["okno"], "2": ["okno"], "3": ["okno"], "4": ["okno"], "5": ["okno"], "6": ["okno"], "7": ["okno"], "8": ["okno"], "9": ["okno"], "10": ["okno"], "11": ["domek", 292, 426], "12": ["domek", 305, 390], "13": ["domek", 293, 388], "14": ["domek", 302, 391], "15": ["domek", 293, 388], "16": ["domek", 294, 431], "17": ["domek", 307, 386], "18": ["domek", 300, 410], "19": ["domek", 305, 392], "20": ["domek", 293, 409], "21": ["domek", 509, 651], "22": ["domek", 525, 655], "23": ["domek", 543, 656], "24": ["vlastni", 520, 553, 95, 330, 73]};
+  const SCENES = {"1": ["okno"], "2": ["vlastni", 545, 586, 108.5, 325.5, 78.5], "3": ["vlastni", 545, 596, 102.9, 335.5, 67.2], "4": ["okno"], "5": ["okno"], "6": ["vlastni", 545, 578, 139.1, 301.6, 103.9], "7": ["vlastni", 545, 556, 99.7, 308.2, 73.4], "8": ["vlastni", 545, 586, 102.5, 332.4, 69.0], "9": ["vlastni", 545, 585, 103.5, 330.9, 69.4], "10": ["vlastni", 545, 553, 112.4, 316.6, 81.2], "11": ["vlastni", 545, 711, 108.9, 311.7, 103.6], "12": ["vlastni", 545, 705, 108.9, 308.8, 104.3], "13": ["okno"], "14": ["domek", 292, 426], "15": ["domek", 293, 388], "16": ["domek", 294, 431], "17": ["vlastni", 545, 704, 109.7, 326.6, 100.8], "18": ["domek", 300, 410], "19": ["domek", 305, 392], "20": ["domek", 293, 409], "21": ["domek", 509, 651], "22": ["vlastni", 545, 583, 102.7, 329.9, 69.9], "23": ["domek", 543, 656], "24": ["vlastni", 520, 553, 95, 330, 73]};
 
   // window boxes measured on the illustration: [x, y, w, h]; row: 1 = top, 2 = middle, 3 = bottom
   const HOUSES = [
@@ -295,7 +298,7 @@
   // typ: omalovanka | pohadka | basnicka | ebook -> download; body; hra; kod; vyzva
   const ODMENY = {
     1:  { typ: 'body', body: 500, nadpis: '500 bodů na uvítanou', text: 'Vítej ve vesničce! Za první okýnko ti dáváme 500 bodů do věrnostního programu.' },
-    2:  { typ: 'omalovanka', nadpis: 'Skřítek peče perníčky', text: 'Omalovánka k vytisknutí. Pastelky do ruky a hurá do pekárny!', soubor: '' },
+    2:  { typ: 'omalovanka', nadpis: 'Skřítek zdobí stromeček', text: 'Omalovánka k vytisknutí. Stáhni si ji, vytiskni a vybarvi stromeček se skřítkem. Pak se pochlub obrázkem na Instagramu a označ @promaledobrodruhy!', soubor: 'omalovanka_02.pdf' },
     3:  { typ: 'basnicka', nadpis: 'Básnička a dopis Ježíškovi', text: 'Básnička k přednesu pod stromečkem a dopis Ježíškovi k vyplnění.', soubor: '' },
     4:  { typ: 'hra', nadpis: 'Pexeso se zimní výbavou', text: 'Najdi dvojice rukavic, čepic a kombinéz. Kdo bude rychlejší, ty, nebo maminka?', hra: '' },
     5:  { typ: 'kod', nadpis: 'Mikulášova nadílka', text: 'Zápisník malého dobrodruha zdarma ke každé objednávce nad 1 000 Kč.', kod: 'MIKULAS-ZAPISNIK' },
@@ -343,7 +346,9 @@
     $('mStitek').textContent = 'OKÝNKO ' + h.day + ' · ' + (STITKY[typ] || '');
     $('mNadpis').textContent = o.nadpis || h.name;
     let html = '<p>' + (o.text || '') + '</p>';
-    if (TLACITKA[typ]) html += '<button class="akce" type="button" data-akce="stahnout">' + svgDown + TLACITKA[typ] + '</button>';
+    if (TLACITKA[typ]) html += o.soubor
+      ? '<a class="akce" href="' + o.soubor + '" target="_blank" rel="noopener" download>' + svgDown + TLACITKA[typ] + '</a>' + (typ === 'omalovanka' ? '<p style="margin-top:12px;font-size:14px;font-weight:700">Vytiskni na A4 a vezmi pastelky!</p>' : '')
+      : '<button class="akce" type="button" data-akce="stahnout">' + svgDown + TLACITKA[typ] + '</button>';
     if (typ === 'body') html += '<p><strong>V dohledné době vám připíšeme ' + o.body.toLocaleString('cs-CZ') + ' bodů.</strong> Body dostanete, jen pokud jste v e-shopu registrovaní pod stejným e-mailem.</p><a class="reg" href="https://www.promaledobrodruhy.cz/registrace/">Ještě nemám účet, chci se registrovat</a>';
     if (typ === 'vyzva') html += '<p><strong>Body vám připíšeme v dohledné době</strong>, pokud jste v e-shopu registrovaní pod stejným e-mailem.</p>';
     if (typ === 'hra') html += '<button class="akce" type="button" data-akce="hra">' + svgPlay + 'Hrát hru</button>';
@@ -384,6 +389,22 @@
   });
   function selectKod() { try { const r = document.createRange(); r.selectNodeContents($('mKod')); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); } catch (e) {} }
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeReward(); }, true);
+
+  // ---------------- background music (original composition, loops; starts after the first click/tap/key) ----------------
+  const hudba = new Audio('hudba.mp3'); hudba.loop = true; hudba.volume = 0.35; hudba.preload = 'auto';
+  const zvukBtn = $('zvuk');
+  let chceHudbu = true;
+  try { chceHudbu = localStorage.getItem('pmd-hudba') !== 'off'; } catch (e) {}
+  function ukazZvuk(hraje) { zvukBtn.setAttribute('aria-pressed', hraje ? 'true' : 'false'); zvukBtn.setAttribute('aria-label', hraje ? 'Hudba: zapnutá, klepni pro vypnutí' : 'Hudba: vypnutá, klepni pro zapnutí'); }
+  function pustHudbu() { const p = hudba.play(); if (p && p.then) p.then(() => ukazZvuk(true), () => ukazZvuk(false)); else ukazZvuk(true); }
+  zvukBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (hudba.paused) { chceHudbu = true; pustHudbu(); } else { chceHudbu = false; hudba.pause(); ukazZvuk(false); }
+    try { localStorage.setItem('pmd-hudba', chceHudbu ? 'on' : 'off'); } catch (e2) {}
+  });
+  const prvniDotek = () => { if (chceHudbu && hudba.paused) pustHudbu(); };
+  ['pointerdown', 'keydown'].forEach(ev => window.addEventListener(ev, prvniDotek, { once: true, capture: true }));
+  document.addEventListener('visibilitychange', () => { if (document.hidden) hudba.pause(); else if (chceHudbu && zvukBtn.getAttribute('aria-pressed') === 'true') pustHudbu(); });
 
   // ---------------- state ----------------
   let opened = new Set(), at = 0; // at = house index the skritek stands at (0 = gate)
