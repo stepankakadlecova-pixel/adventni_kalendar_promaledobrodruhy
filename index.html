@@ -132,7 +132,7 @@
 <div class="scroller" id="scroller">
   <div class="sizer" id="sizer">
     <div class="stage" id="stage">
-      <img class="bg" src="vesnicka.webp" alt="Zasněžená vesnička s 24 domečky, cestičkami, mlýnem, hvězdárnou a velkým vánočním stromem.">
+      <img class="bg" src="vesnicka/vesnicka.webp" alt="Zasněžená vesnička s 24 domečky, cestičkami, mlýnem, hvězdárnou a velkým vánočním stromem.">
       <svg viewBox="0 0 2172 724" aria-hidden="true">
         <path id="cesta" fill="none" stroke="none"/>
         <g id="stopy"></g>
@@ -140,7 +140,7 @@
       <div id="okna"></div>
       <button class="skritek idle" id="skritek" type="button" aria-label="Skřítek dobrodruh: klepni, nebo zmáčkni mezerník, a dojde k dalšímu domečku">
         <span class="bublina" id="bublina">Klepni na mě!</span>
-        <span class="telo"><span class="stin"></span><img id="skimg" src="sk_r0.webp" alt=""></span>
+        <span class="telo"><span class="stin"></span><img id="skimg" src="vesnicka/sk_r0.webp" alt=""></span>
       </button>
     </div>
   </div>
@@ -149,7 +149,7 @@
 <div class="snow" id="snow" aria-hidden="true"></div>
 
 <div class="topbar">
-  <a class="logo" href="https://www.promaledobrodruhy.cz" aria-label="Pro malé dobrodruhy – e-shop"><img src="logo.jpg" alt="Pro malé dobrodruhy"></a>
+  <a class="logo" href="https://www.promaledobrodruhy.cz" aria-label="Pro malé dobrodruhy – e-shop"><img src="vesnicka/logo.jpg" alt="Pro malé dobrodruhy"></a>
   <div class="right">
     <span class="chip" id="pocet">0 / 24</span>
     <button class="btn" id="reset" type="button">Znovu</button>
@@ -162,7 +162,7 @@
 <div class="modal" id="modal" hidden>
   <div class="karta" id="karta" role="dialog" aria-modal="true" aria-labelledby="mNadpis">
     <button class="zavrit" id="mZavrit" type="button" aria-label="Zavřít"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="#000" stroke-width="3.5" stroke-linecap="round"/></svg></button>
-    <div class="obr"><img src="okno_otevrene.webp" alt=""><div class="ikona" id="mIkona"></div></div>
+    <div class="obr"><img src="vesnicka/okno_otevrene.webp" alt=""><div class="ikona" id="mIkona"></div></div>
     <span class="stitek" id="mStitek"></span>
     <h2 id="mNadpis"></h2>
     <div id="mObsah"></div>
@@ -272,7 +272,7 @@
     b.setAttribute('aria-label', 'Okýnko ' + h.day + ', ' + h.name);
     // the open-window illustration: its glowing opening (182.5,199 / 260x236 in a 627px image) sits exactly over the painted window
     const k = w / 260;
-    const openImg = '<img class="otevrene" src="okno_otevrene.webp" alt="" style="left:' + (-182.5 * k).toFixed(1) + 'px;top:' + (-199 * k).toFixed(1) + 'px;width:' + (627 * k).toFixed(1) + 'px;transform-origin:' + (312.5 * k).toFixed(1) + 'px ' + (317 * k).toFixed(1) + 'px">';
+    const openImg = '<img class="otevrene" src="vesnicka/okno_otevrene.webp" alt="" style="left:' + (-182.5 * k).toFixed(1) + 'px;top:' + (-199 * k).toFixed(1) + 'px;width:' + (627 * k).toFixed(1) + 'px;transform-origin:' + (312.5 * k).toFixed(1) + 'px ' + (317 * k).toFixed(1) + 'px">';
     // scene images (400px): their opening (107,122 / 176 wide, sill at y 320) sits over the painted window
     let sceneImg = '';
     const sc = SCENES[h.day];
@@ -283,7 +283,7 @@
       else if (sc[0] === 'vlastni') { iw = sc[1]; ox = sc[3]; ow = sc[4]; sill = sc[2] - sc[5]; }
       else { const [, IW, IH] = sc; iw = IW; ox = 0.20 * IW; ow = 0.574 * IW; sill = IH - 0.18 * IW; }
       const q = (w + 4) / ow;
-      sceneImg = '<img class="scena" src="scena_' + String(h.day).padStart(2, '0') + '.webp" alt="" style="left:' + (-2 - ox * q).toFixed(1) + 'px;top:' + (hh + 2 - sill * q).toFixed(1) + 'px;width:' + (iw * q).toFixed(1) + 'px;transform-origin:' + ((ox + ow / 2) * q).toFixed(1) + 'px ' + (sill * q).toFixed(1) + 'px">';
+      sceneImg = '<img class="scena" src="vesnicka/scena_' + String(h.day).padStart(2, '0') + '.webp" alt="" style="left:' + (-2 - ox * q).toFixed(1) + 'px;top:' + (hh + 2 - sill * q).toFixed(1) + 'px;width:' + (iw * q).toFixed(1) + 'px;transform-origin:' + ((ox + ow / 2) * q).toFixed(1) + 'px ' + (sill * q).toFixed(1) + 'px">';
     }
     b.innerHTML = '<span class="ram"><span class="svetlo"></span><span class="okenice l"></span><span class="okenice r"></span></span>' + openImg + sceneImg + starSvg + '<span class="cislo">' + h.day + '</span>';
     b.addEventListener('click', (e) => { if (!opened.has(h.day)) return; e.stopPropagation(); if (dragMoved) return; showReward(h); });
@@ -394,7 +394,7 @@
   // ---------------- skritek ----------------
   const sk = $('skritek'), bub = $('bublina'), skimg = $('skimg');
   const SK_W = 79, SK_H = 100;
-  const FRAMES = {}; ['r0', 'r1', 'r2', 'l0', 'l1', 'l2'].forEach(f => { const im = new Image(); im.src = 'sk_' + f + '.webp'; FRAMES[f] = im.src; });
+  const FRAMES = {}; ['r0', 'r1', 'r2', 'l0', 'l1', 'l2'].forEach(f => { const im = new Image(); im.src = 'vesnicka/sk_' + f + '.webp'; FRAMES[f] = im.src; });
   const WALK = ['1', '0', '2', '0'];
   let frame = 'r0', facing = 1;
   const setFrame = (f) => { if (f !== frame) { frame = f; skimg.src = FRAMES[f]; } };
