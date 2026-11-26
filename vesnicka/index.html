@@ -128,6 +128,7 @@
   .knihovna li span{opacity:.45;box-shadow:none;border-style:dashed;font-weight:700}
   .knihovna li b{flex:none;width:30px;height:30px;border-radius:50%;background:var(--orange);display:grid;place-items:center;font-size:14px}
   .knihovna li em{margin-left:auto;font-style:normal;font-size:13px;font-weight:700;opacity:.7;white-space:nowrap}
+  .karta .omal{margin:12px 0 0;font-size:15px;line-height:1.45;background:#FFF4E8;border:2px dashed #F36717;border-radius:14px;padding:10px 12px}
   .toast{position:fixed;left:50%;bottom:max(64px, calc(env(safe-area-inset-bottom) + 56px));transform:translate(-50%,220%);background:#fff;border:3px solid var(--ink);border-radius:16px;box-shadow:4px 4px 0 var(--ink);padding:10px 18px;font-weight:800;font-size:16px;transition:transform .35s cubic-bezier(.3,1.4,.5,1);z-index:20;white-space:nowrap}
   .toast.show{transform:translate(-50%,0)}
 
@@ -248,7 +249,7 @@
   <div class="karta" role="dialog" aria-modal="true" aria-labelledby="kNadpis">
     <button class="zavrit" id="kZavrit" type="button" aria-label="Zavřít"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="#000" stroke-width="3.5" stroke-linecap="round"/></svg></button>
     <h2 id="kNadpis">Detektivka na dobrou noc</h2>
-    <p>Malý dobrodruh a tajemství zmizelé vánoční hvězdy. Každý den přibude nový díl. Když jste nějaký večer zmeškali, stáhněte si ho tady.</p>
+    <p>Malý dobrodruh a tajemství zmizelé vánoční hvězdy. Každý den přibude nový díl a k němu omalovánka k vybarvení. Když jste nějaký večer zmeškali, stáhněte si ho tady.</p>
     <ol id="kSeznam"></ol>
   </div>
 </div>
@@ -467,6 +468,7 @@
       const soubor = 'pribeh_' + String(h.day).padStart(2, '0') + '.pdf';
       if (typ !== 'pribeh') html += '<div class="kapitola"><strong>Detektivka pokračuje:</strong> ' + h.day + '. díl ke stažení na A4</div>';
       html += '<a class="akce" href="' + soubor + '" target="_blank" rel="noopener" download>' + svgDown + 'Stáhnout ' + h.day + '. díl (A4)</a>';
+      html += '<p class="omal">🖍️ <strong>Součástí pohádky je i omalovánka.</strong> Po přečtení si obrázek můžete společně vybarvit.</p>';
     }
     if (!maPripominku()) html += '<button class="zvonek" type="button" data-akce="pripominka">🔔 Připomeň mi zítřejší okýnko</button>';
     $('mObsah').innerHTML = html;
@@ -694,7 +696,7 @@
 
   function markNext() {
     houses.forEach(h => h.el.classList.remove('next'));
-    const n = (opened.size ? Math.max(...opened) : 0); if (n < 24) houses[n].el.classList.add('next');
+    const t = dnesniDen(); if (t >= 1 && !opened.has(t)) houses[t - 1].el.classList.add('next');
   }
 
   function walkTo(goal, onArrive) {
@@ -702,9 +704,10 @@
     if (reduceMotion) { curLen = goal; place(curLen); onArrive(); return; }
     cancelAnimationFrame(raf);
     let last = performance.now(), phase = 0;
+    const sp = Math.max(SPEED, Math.abs(goal - curLen) / 7);   // long trips (e.g. a first visit on 15 Dec) take at most ~7 s
     const step = (now) => {
       const dt = Math.min(0.05, (now - last) / 1000); last = now;
-      const before = curLen, mv = SPEED * dt;
+      const before = curLen, mv = sp * dt;
       curLen = Math.abs(goal - curLen) <= mv ? goal : curLen + Math.sign(goal - curLen) * mv;
       const a = path.getPointAtLength(before), p = path.getPointAtLength(curLen);
       if (Math.abs(p.x - a.x) > 0.15) facing = p.x < a.x ? -1 : 1;
@@ -735,14 +738,14 @@
       }
       markNext(); markPast(); sk.classList.add('idle');
       if (ukazat && !nove) { say('Tady už jsme byli!'); showReward(h); return; }
-      say(h.el.classList.contains('cerstve') ? 'Klepni na okýnko!' : (dal() >= 24 ? 'Ještě ke stromečku!' : 'Klepni a jdeme dál!'));
+      say(h.el.classList.contains('cerstve') ? 'Klepni na okýnko!' : (opened.has(24) && !hvezdaStrom.classList.contains('na-miste') ? 'Ještě ke stromečku!' : (opened.has(dnesniDen()) ? 'Zítra jdeme dál!' : 'Klepni a jdeme dál!')));
     }, reduceMotion ? 0 : 320);
   }
 
   function scrollerEl() { return document.getElementById('scroller'); }
   function markPast() {
-    // until real dates: a window shows its scene once a later window has been opened
-    const d = dal();
+    // the day after a window was opened, its house shows what is happening inside
+    const d = dnesniDen();
     houses.forEach(h => { const past = opened.has(h.day) && h.day < d; h.el.classList.toggle('past', past); if (past) h.el.classList.remove('cerstve'); });
   }
   function jdiK(i, ukazat) {
@@ -779,7 +782,10 @@
 
   function advance() {
     if (walking) return;
-    if (dal() < 24) { jdiK(dal() + 1, false); return; }   // always on to the next new window
+    const t = dnesniDen();
+    if (t < 1) { say('Už brzy!'); toast('Vesnička se otevře 1. prosince. Těšíme se!'); return; }
+    if (!opened.has(t)) { jdiK(t, false); return; }        // today's window (missed days stay closed)
+    if (t < 24) { say('Zítra jdeme dál!'); toast('Dnešní okýnko máš otevřené. Další se otevře zítra!'); return; }
     if (curLen < END_LEN - 1) {
       $('navhint').classList.add('hide');
       walkTo(END_LEN, () => { walking = false; facing = 1; place(curLen); sk.classList.add('idle'); if (!vratHvezdu()) { say('Veselé Vánoce!'); toast('Celá vesnička je prošlá. Veselé Vánoce!'); } });
@@ -804,9 +810,11 @@
       jdiK(h.day, true);                       // walk back (or forward) to a house already visited
       return;
     }
-    if (h.day === dal() + 1) { jdiK(h.day, false); return; }   // the next window in line
+    const t = dnesniDen();
+    if (h.day === t) { jdiK(h.day, false); return; }      // today's window
     h.el.classList.remove('nudge'); void h.el.offsetWidth; h.el.classList.add('nudge');
-    toast('Okýnko ' + h.day + ' ještě není na řadě. Nejdřív okýnko ' + (dal() + 1) + '!');
+    if (h.day > t) toast(t < 1 ? 'Vesnička se otevře 1. prosince!' : 'Okýnko ' + h.day + ' se otevře ' + h.day + '. prosince.');
+    else toast('Okýnko ' + h.day + ' už se nedá otevřít. Pohádku najdeš v 📖 Pohádky.');
   }
 
   function sparkles(h) {
