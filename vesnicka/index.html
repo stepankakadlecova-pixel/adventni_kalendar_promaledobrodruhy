@@ -95,13 +95,33 @@
   .pripom{position:fixed;inset:0;z-index:31;display:grid;place-items:center;padding:16px;background:rgba(20,30,50,.55)}
   .pripom[hidden]{display:none}
   .pripom .karta{padding:22px 24px 22px;text-align:left}
-  .pripom h2{text-align:center}
+  .pripom h2{text-align:center;padding:0 34px}
   .pripom input[type=email]{width:100%;box-sizing:border-box;min-height:48px;border:3px solid var(--ink);border-radius:14px;padding:0 14px;font:700 17px Nunito,sans-serif;margin:4px 0 12px}
   .pripom label.ch{display:flex;gap:10px;align-items:flex-start;margin:0 0 12px;font-size:15px;line-height:1.4;cursor:pointer}
   .pripom label.ch input{width:22px;height:22px;flex:none;margin-top:1px;accent-color:#F36717}
   .pripom .male{font-size:12px;color:#555;margin:6px 0 0}
   .pripom .ecm-form{min-height:120px;margin:0 -10px}
   .zvonek{display:inline-flex;align-items:center;gap:6px;margin-top:14px;background:#fff;border:3px solid var(--ink);border-radius:999px;padding:8px 14px;font:800 14px Nunito,sans-serif;box-shadow:3px 3px 0 var(--ink);cursor:pointer}
+  .brana{position:fixed;inset:0;z-index:45;display:grid;place-items:center;padding:16px;background:rgba(20,30,50,.6);backdrop-filter:blur(2px)}
+  .brana[hidden]{display:none}
+  .brana .karta{padding:22px 26px 24px;text-align:left}
+  .brana .karta h2{text-align:center}
+  .brana .sk-mini{display:block;width:84px;margin:-4px auto 0}
+  .brana input[type=email]{width:100%;box-sizing:border-box;min-height:50px;border:3px solid var(--ink);border-radius:14px;padding:0 14px;font:700 17px Nunito,sans-serif;margin:6px 0 14px}
+  .brana label.ch{display:flex;gap:10px;align-items:flex-start;margin:0 0 12px;font-size:14px;line-height:1.45;cursor:pointer}
+  .brana label.ch input{width:22px;height:22px;flex:none;margin-top:1px;accent-color:#F36717}
+  .brana .akce{width:100%;justify-content:center;margin-top:4px}
+  .brana .chyba{color:#C0392B;font-weight:800;font-size:14px;min-height:20px;margin:0 0 6px}
+  .knihovna{position:fixed;inset:0;z-index:31;display:grid;place-items:center;padding:16px;background:rgba(20,30,50,.55)}
+  .knihovna[hidden]{display:none}
+  .knihovna .karta{padding:22px 22px 20px;text-align:left}
+  .knihovna h2{text-align:center;padding:0 34px}
+  .knihovna ol{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:8px}
+  .knihovna li a,.knihovna li span{display:flex;align-items:center;gap:10px;border:3px solid var(--ink);border-radius:14px;padding:9px 12px;font-weight:800;font-size:15px;text-decoration:none;color:var(--ink);background:#fff;box-shadow:3px 3px 0 var(--ink)}
+  .knihovna li a:hover{background:var(--yellow)}
+  .knihovna li span{opacity:.45;box-shadow:none;border-style:dashed;font-weight:700}
+  .knihovna li b{flex:none;width:30px;height:30px;border-radius:50%;background:var(--orange);display:grid;place-items:center;font-size:14px}
+  .knihovna li em{margin-left:auto;font-style:normal;font-size:13px;font-weight:700;opacity:.7;white-space:nowrap}
   .toast{position:fixed;left:50%;bottom:max(64px, calc(env(safe-area-inset-bottom) + 56px));transform:translate(-50%,220%);background:#fff;border:3px solid var(--ink);border-radius:16px;box-shadow:4px 4px 0 var(--ink);padding:10px 18px;font-weight:800;font-size:16px;transition:transform .35s cubic-bezier(.3,1.4,.5,1);z-index:20;white-space:nowrap}
   .toast.show{transform:translate(-50%,0)}
 
@@ -193,6 +213,7 @@
   <div class="right">
     <span class="chip" id="pocet">0 / 24</span>
     <button class="btn zvuk" id="zvuk" type="button" aria-pressed="false" aria-label="Hudba: vypnutá"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9 H8 L13 5 V19 L8 15 H4 Z" fill="#000"/><path class="vlny" d="M16 9 q2.5 3 0 6 M18.5 6.5 q5 5.5 0 11" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round"/><path class="krizek" d="M16 9 L21 15 M21 9 L16 15" stroke="#000" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+    <button class="btn" id="knihaBtn" type="button" aria-label="Všechny díly pohádky ke stažení">📖 Pohádky</button>
     <button class="btn" id="zvonekBtn" type="button" aria-label="Nastavit připomínku e-mailem">🔔 Připomínka</button>
     <button class="btn" id="reset" type="button">Znovu</button>
   </div>
@@ -200,6 +221,29 @@
 <div class="navhint" id="navhint">
   <svg width="22" height="14" viewBox="0 0 22 14" aria-hidden="true"><path d="M7 2 L2 7 L7 12 M15 2 L20 7 L15 12 M2 7 H20" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
   <span class="d">Klikni kamkoli nebo zmáčkni mezerník</span><span class="m">Klepni kamkoli, do stran táhni prstem</span>
+</div>
+<div class="brana" id="brana" hidden>
+  <div class="karta" role="dialog" aria-modal="true" aria-labelledby="bNadpis">
+    <img class="sk-mini" src="sk_r0.webp" alt="">
+    <h2 id="bNadpis">Vítej v Adventní vesničce!</h2>
+    <p>Zadej svůj e-mail a skřítek tě pustí dál. Pod tímhle e-mailem ti budeme připisovat body a losy do losování o 3 poukazy na nákup. Příště už ho zadávat nemusíš.</p>
+    <form id="bForm" novalidate>
+      <label for="bEmail"><strong>Tvůj e-mail</strong></label>
+      <input type="email" id="bEmail" autocomplete="email" required placeholder="např. jana@email.cz">
+      <label class="ch"><input type="checkbox" id="bSouhlas"> <span>Souhlasím se zpracováním e-mailu pro účely Adventní vesničky (připsání bodů a losování). <a href="https://www.promaledobrodruhy.cz/souhlas-se-zpracovanim-osobnich-udaju/" target="_blank" rel="noopener">Zpracování osobních údajů</a></span></label>
+      <label class="ch"><input type="checkbox" id="bPripom"> <span>Chci každý den v 18:00 připomínku nového okýnka a novinky Pro malé dobrodruhy <em>(nepovinné)</em></span></label>
+      <p class="chyba" id="bChyba" aria-live="polite"></p>
+      <button class="akce" type="submit">Vstoupit do vesničky</button>
+    </form>
+  </div>
+</div>
+<div class="knihovna" id="knihovna" hidden>
+  <div class="karta" role="dialog" aria-modal="true" aria-labelledby="kNadpis">
+    <button class="zavrit" id="kZavrit" type="button" aria-label="Zavřít"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="#000" stroke-width="3.5" stroke-linecap="round"/></svg></button>
+    <h2 id="kNadpis">Detektivka na dobrou noc</h2>
+    <p>Malý dobrodruh a tajemství zmizelé vánoční hvězdy. Každý den přibude nový díl. Když jste nějaký večer zmeškali, stáhněte si ho tady.</p>
+    <ol id="kSeznam"></ol>
+  </div>
 </div>
 <div class="pripom" id="pripom" hidden>
   <div class="karta" role="dialog" aria-modal="true" aria-labelledby="pNadpis">
@@ -479,6 +523,74 @@
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !pripom.hidden) { zavriPripominku(); e.stopPropagation(); } }, true);
   pripom.addEventListener('keydown', (e) => e.stopPropagation());
 
+
+  // ---------------- e-mail gate: the village opens only after entering an e-mail (remembered in this browser) ----------------
+  const LOG_URL = 'https://script.google.com/macros/s/AKfycbzvwXyeAbVNVdGUDsIX-_UYni3NdZveRlsIxVDmJ1pg9z9emRfTmXfm_mVkxRWEa2F8/exec';   // Google Apps Script web app URL (logs entries and opened windows for points and the draw)
+  const E_KEY = 'pmd-email';
+  const brana = $('brana');
+  const emailOk = (v) => /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(v);
+  let mujEmail = ''; try { mujEmail = localStorage.getItem(E_KEY) || ''; } catch (e) {}
+  function zaloguj(akce, den) {
+    if (!LOG_URL || !mujEmail) return;
+    const data = JSON.stringify({ email: mujEmail, akce, den: den || '', cas: new Date().toISOString() });
+    try { if (!(navigator.sendBeacon && navigator.sendBeacon(LOG_URL, data))) fetch(LOG_URL, { method: 'POST', mode: 'no-cors', body: data }); } catch (e) {}
+  }
+  (() => {
+    const q = new URLSearchParams(location.search);
+    const z = (q.get('e') || q.get('email') || '').trim();
+    if (z && emailOk(z)) $('bEmail').value = z;
+    if (!emailOk(mujEmail)) { brana.hidden = false; } else { zaloguj('navsteva'); }
+  })();
+  brana.addEventListener('click', (e) => e.stopPropagation());
+  brana.addEventListener('pointerdown', (e) => e.stopPropagation());
+  brana.addEventListener('keydown', (e) => e.stopPropagation());
+  $('bForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const v = $('bEmail').value.trim().toLowerCase();
+    if (!emailOk(v)) { $('bChyba').textContent = 'Zkontroluj prosím e-mail.'; $('bEmail').focus(); return; }
+    if (!$('bSouhlas').checked) { $('bChyba').textContent = 'Pro vstup potřebujeme tvůj souhlas.'; return; }
+    mujEmail = v; try { localStorage.setItem(E_KEY, v); } catch (err) {}
+    zaloguj('registrace');
+    brana.hidden = true;
+    if ($('bPripom').checked) { otevriPripominku(); predvyplnEcomail(v); }
+    else toast('Vítej! Klikni kamkoli a skřítek vyrazí');
+  });
+  function predvyplnEcomail(v) {
+    let n = 0; const t = setInterval(() => {
+      const i = document.querySelector('#f-' + ECM_ID + ' input[type=email], #f-' + ECM_ID + ' input[name=email]');
+      if (i) { i.value = v; i.dispatchEvent(new Event('input', { bubbles: true })); clearInterval(t); }
+      if (++n > 40) clearInterval(t);
+    }, 250);
+  }
+
+
+  // ---------------- story library: every part released so far can be downloaded, even for missed windows ----------------
+  const DILY = ['Ráno bez hvězdy','Podezřelá veverka','Tajemství malých stop','Sova, která nespala','Záhadná červená nitka','Liščí stopy','Mapa starého lesa','Záhadné klepání','Tři záhadné oříšky','Lucernička ze skořápky','Myška, která něco tajila','Tajemství prázdné krabičky','Tajemství zimního spáče','Překvapení pod sněhem','Záhada u zamrzlého potoka','Tajemství stračího hnízda','Tajemný bílý návštěvník','Výprava ke třem kamenům','Tajemství záhadného znamení','Tajemství tří plamínků','Plamínek odvahy','Plamínek laskavosti','Plamínek přátelství','To největší kouzlo Vánoc'];
+  function dnesniDen() {
+    const t = new URLSearchParams(location.search).get('den');        // ?den=5 for testing
+    if (t && /^\d+$/.test(t)) return Math.min(24, +t);
+    const d = new Date();
+    if (d.getFullYear() > 2026 || (d.getFullYear() === 2026 && d.getMonth() === 11 && d.getDate() > 24)) return 24;
+    if (d.getFullYear() === 2026 && d.getMonth() === 11) return d.getDate();
+    return 0;
+  }
+  const knihovna = $('knihovna');
+  function otevriKnihovnu() {
+    const n = Math.max(dnesniDen(), opened.size ? Math.max(...opened) : 0);
+    $('kSeznam').innerHTML = DILY.map((nazev, i) => {
+      const d = i + 1, f = 'pribeh_' + String(d).padStart(2, '0') + '.pdf';
+      return d <= n
+        ? '<li><a href="' + f + '" target="_blank" rel="noopener" download><b>' + d + '</b>' + nazev + '<em>⬇ A4</em></a></li>'
+        : '<li><span><b>' + d + '</b>' + (d === n + 1 ? 'Další díl už zítra…' : '???') + '<em>' + d + '. 12.</em></span></li>';
+    }).slice(0, Math.min(24, n + 1)).join('') || '<li><span>První díl vyjde 1. prosince</span></li>';
+    knihovna.hidden = false; $('kZavrit').focus();
+  }
+  $('knihaBtn').addEventListener('click', (e) => { e.stopPropagation(); otevriKnihovnu(); });
+  $('kZavrit').addEventListener('click', () => { knihovna.hidden = true; });
+  knihovna.addEventListener('click', (e) => { e.stopPropagation(); if (e.target === knihovna) knihovna.hidden = true; });
+  knihovna.addEventListener('pointerdown', (e) => e.stopPropagation());
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !knihovna.hidden) { knihovna.hidden = true; e.stopPropagation(); } }, true);
+
   // ---------------- background music (original composition, loops; starts after the first click/tap/key) ----------------
   const hudba = new Audio('hudba.mp3'); hudba.loop = true; hudba.volume = 0.35; hudba.preload = 'none';
   const zvukBtn = $('zvuk');
@@ -604,7 +716,7 @@
       walking = false;
       const nove = !opened.has(h.day);
       if (nove) {
-        h.el.classList.add('open', 'cerstve'); opened.add(h.day); save(); updateCount(); sparkles(h);
+        h.el.classList.add('open', 'cerstve'); opened.add(h.day); save(); zaloguj('okno', h.day); updateCount(); sparkles(h);
         toast('Okýnko ' + h.day + ' je otevřené. Klepni na něj!');
       }
       markNext(); markPast(); sk.classList.add('idle');
@@ -641,7 +753,7 @@
   window.addEventListener('keydown', (e) => {
     if (e.code !== 'Space' && e.key !== ' ') return;
     if (e.target && e.target.id === 'reset') return;
-    if (!modal.hidden || !pripom.hidden) return;
+    if (!modal.hidden || !pripom.hidden || !brana.hidden || !knihovna.hidden) return;
     e.preventDefault(); if (!e.repeat) advance();
   });
 
