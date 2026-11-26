@@ -73,6 +73,12 @@
   @keyframes twinkle{0%,100%{transform:translate(-50%,-50%) scale(1) rotate(0)}50%{transform:translate(-50%,-50%) scale(1.12) rotate(12deg)}}
   @keyframes nudge{0%,100%{transform:none}30%{transform:translateY(-3px) rotate(-3deg)}60%{transform:translateY(-1px) rotate(3deg)}}
 
+  .hvezda-strom{position:absolute;left:2068px;top:368px;width:64px;height:64px;margin:-32px 0 0 -32px;z-index:4;pointer-events:none;opacity:0}
+  .hvezda-strom.na-miste{opacity:1}
+  .hvezda-strom .paprsky{opacity:0;transform-origin:32px 32px;transition:opacity .8s}
+  .hvezda-strom.sviti .paprsky{opacity:1;animation:otoc 9s linear infinite}
+  .hvezda-strom.sviti .telo{filter:drop-shadow(0 0 10px rgba(255,214,77,.95))}
+  @keyframes otoc{to{transform:rotate(360deg)}}
   .jiskra{position:absolute;width:12px;height:12px;pointer-events:none;z-index:6;animation:fly .9s ease-out forwards}
   @keyframes fly{from{transform:translate(-50%,-50%) scale(.4);opacity:1}to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1);opacity:0}}
 
@@ -197,6 +203,7 @@
         <path id="cesta" fill="none" stroke="none"/>
         <g id="stopy"></g>
       </svg>
+      <div class="hvezda-strom" id="hvezdaStrom" aria-hidden="true"><svg viewBox="0 0 64 64" width="64" height="64"><g class="paprsky" stroke="#FFD23F" stroke-width="3.5" stroke-linecap="round"><path d="M32 2v8M32 54v8M2 32h8M54 32h8M10.8 10.8l5.6 5.6M47.6 47.6l5.6 5.6M10.8 53.2l5.6-5.6M47.6 16.4l5.6-5.6"/></g><path class="telo" d="M32 11 l6.2 13.2 14.4 1.8 -10.6 9.9 2.8 14.3 L32 43.2 19.2 50.2 22 35.9 11.4 26 25.8 24.2 Z" fill="#FFD23F" stroke="#1a1a1a" stroke-width="3" stroke-linejoin="round"/><path d="M27 22 l3-6" stroke="#fff6c2" stroke-width="2.5" stroke-linecap="round"/></svg></div>
       <div id="okna"></div>
       <button class="skritek idle" id="skritek" type="button" aria-label="Skřítek dobrodruh: klepni, nebo zmáčkni mezerník, a dojde k dalšímu domečku">
         <span class="bublina" id="bublina">Klepni na mě!</span>
@@ -222,7 +229,7 @@
   <svg width="22" height="14" viewBox="0 0 22 14" aria-hidden="true"><path d="M7 2 L2 7 L7 12 M15 2 L20 7 L15 12 M2 7 H20" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
   <span class="d">Klikni kamkoli nebo zmáčkni mezerník</span><span class="m">Klepni kamkoli, do stran táhni prstem</span>
 </div>
-<div class="brana" id="brana" hidden>
+<div class="brana" id="brana">
   <div class="karta" role="dialog" aria-modal="true" aria-labelledby="bNadpis">
     <img class="sk-mini" src="sk_r0.webp" alt="">
     <h2 id="bNadpis">Vítej v Adventní vesničce!</h2>
@@ -447,6 +454,7 @@
     if (typ === 'vyzva') html += '<p><strong>Body vám připíšeme v dohledné době</strong>, pokud jste v e-shopu registrovaní pod stejným e-mailem.</p>';
     if (typ === 'hra') html += '<button class="akce" type="button" data-akce="hra">' + svgPlay + 'Hrát hru</button>';
     if (o.bonus) html += '<p style="margin-top:14px"><a class="reg" href="' + o.bonus + '" target="_blank" rel="noopener" download>Bonus: omalovánka k vytisknutí</a></p>';
+    if (h.day === 24 && !hvezdaStrom.classList.contains('na-miste')) html += '<div class="kapitola"><strong>⭐ Poslední úkol:</strong> dojdi se skřítkem až k vánočnímu stromečku a vrať hvězdu na její místo!</div>';
     if (o.losovani) {
       const n = opened.size;
       html += '<div class="losbox"><strong>Jsi v losování o 3 poukazy na nákup!</strong><br>Tvoje jméno bude v osudí ' + n + '× (' + (n === 1 ? '1 otevřené okýnko' : n + ' otevřených okýnek') + '). Losujeme v neděli 27. 12. a výherce zveřejníme na Instagramu a v e-mailu.</div>';
@@ -498,7 +506,7 @@
   const P_KEY = 'pmd-pripominka';
   const maPripominku = () => { try { return !!localStorage.getItem(P_KEY); } catch (e) { return false; } };
   const pripom = $('pripom');
-  let ecmNacteno = false;
+  let ecmNacteno = false, ecmEmail = '';
   function nactiEcomail() {
     if (ecmNacteno) return; ecmNacteno = true;
     (function (w, d, s, o, f, js, fjs) {
@@ -508,9 +516,15 @@
     }(window, document, 'script', 'ecmwidget', 'https://d70shl7vidtft.cloudfront.net/widget.js'));
     // remember a successful sign-up: the thank-you screen contains "18:00" text after submit
     const box = $('f-' + ECM_ID);
+    box.addEventListener('input', (e) => { if (e.target && /email/i.test((e.target.type || '') + (e.target.name || ''))) ecmEmail = e.target.value.trim().toLowerCase(); }, true);
     new MutationObserver(() => {
       const t = box.textContent || '';
-      if (/Hotovo|zapnutou/i.test(t)) { try { localStorage.setItem(P_KEY, JSON.stringify({ at: Date.now() })); } catch (e) {} }
+      if (/Hotovo|zapnutou/i.test(t) && !box.dataset.hotovo) {
+        box.dataset.hotovo = '1';
+        try { localStorage.setItem(P_KEY, JSON.stringify({ at: Date.now() })); } catch (e) {}
+        if (!emailOk(mujEmail) && emailOk(ecmEmail)) { mujEmail = ecmEmail; try { localStorage.setItem(E_KEY, ecmEmail); } catch (e) {} }
+        zaloguj('pripominka');
+      }
     }).observe(box, { childList: true, subtree: true, characterData: true });
     setTimeout(() => { const n = $('pNacita'); if (n && n.isConnected) n.textContent = 'Formulář se nenačetl. Zkus to prosím za chvíli znovu.'; }, 8000);
   }
@@ -539,7 +553,7 @@
     const q = new URLSearchParams(location.search);
     const z = (q.get('e') || q.get('email') || '').trim();
     if (z && emailOk(z)) $('bEmail').value = z;
-    if (!emailOk(mujEmail)) { brana.hidden = false; } else { zaloguj('navsteva'); }
+    if (!emailOk(mujEmail)) { brana.hidden = false; } else { brana.hidden = true; zaloguj('navsteva'); }
   })();
   brana.addEventListener('click', (e) => e.stopPropagation());
   brana.addEventListener('pointerdown', (e) => e.stopPropagation());
@@ -737,15 +751,41 @@
     if (i === at) { arriveAt(i, ukazat); return; }
     walkTo(STOPS[i], () => arriveAt(i, ukazat));
   }
+
+  // ---------------- the Christmas star: missing all advent, on 24 Dec the skritek walks to the tree and puts it back ----------------
+  const H_KEY = 'pmd-hvezda';
+  const hvezdaStrom = $('hvezdaStrom');
+  try { if (localStorage.getItem(H_KEY) && opened.has(24)) hvezdaStrom.classList.add('na-miste', 'sviti'); } catch (e) {}
+  function vratHvezdu() {
+    if (hvezdaStrom.classList.contains('na-miste')) return false;
+    const p = path.getPointAtLength(curLen);
+    const sx = p.x - 2068, sy = (p.y - 70) - 368;
+    hvezdaStrom.classList.add('na-miste');
+    const done = () => {
+      hvezdaStrom.classList.add('sviti');
+      sparkles({ cx: 2068, cy: 368 });
+      try { localStorage.setItem(H_KEY, '1'); } catch (e) {}
+      say('Hvězda svítí!'); toast('Hvězda je zpátky na stromečku. Veselé Vánoce!');
+    };
+    if (reduceMotion) { done(); return true; }
+    hvezdaStrom.animate([
+      { transform: 'translate(' + sx + 'px,' + sy + 'px) scale(.5)', opacity: 0 },
+      { transform: 'translate(' + sx + 'px,' + sy + 'px) scale(.7)', opacity: 1, offset: .15 },
+      { transform: 'translate(' + sx * .45 + 'px,' + (sy * .45 - 90) + 'px) scale(1.25) rotate(200deg)', offset: .6 },
+      { transform: 'translate(0,0) scale(1) rotate(360deg)', opacity: 1 }
+    ], { duration: 1900, easing: 'cubic-bezier(.4,.1,.3,1)' }).onfinish = done;
+    return true;
+  }
+
   function advance() {
     if (walking) return;
     if (dal() < 24) { jdiK(dal() + 1, false); return; }   // always on to the next new window
     if (curLen < END_LEN - 1) {
       $('navhint').classList.add('hide');
-      walkTo(END_LEN, () => { walking = false; facing = 1; place(curLen); sk.classList.add('idle'); say('Veselé Vánoce!'); toast('Celá vesnička je prošlá. Veselé Vánoce!'); });
+      walkTo(END_LEN, () => { walking = false; facing = 1; place(curLen); sk.classList.add('idle'); if (!vratHvezdu()) { say('Veselé Vánoce!'); toast('Celá vesnička je prošlá. Veselé Vánoce!'); } });
       return;
     }
-    toast('Celá vesnička je prošlá. Veselé Vánoce!');
+    if (!vratHvezdu()) toast('Celá vesnička je prošlá. Veselé Vánoce!');
   }
   // click with the mouse or tap anywhere in the village (a drag only pans)
   scrollerEl().addEventListener('click', () => { if (dragMoved) return; advance(); });
@@ -829,6 +869,7 @@
   $('reset').addEventListener('click', () => {
     cancelAnimationFrame(raf); walking = false;
     opened.clear(); at = 0; save(); updateCount();
+    hvezdaStrom.classList.remove('na-miste', 'sviti'); try { localStorage.removeItem(H_KEY); } catch (e) {}
     houses.forEach(h => h.el.classList.remove('open', 'next', 'past', 'cerstve'));
     while (stopy.firstChild) stopy.removeChild(stopy.firstChild);
     curLen = STOPS[0]; lastPrint = curLen; facing = 1; place(curLen);
